@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary Activator - Turn Passive Vocabulary Into Fluent Speech</title>
+    <meta name="description" content="Activate your passive vocabulary with spaced contextual retrieval and anti-pileup protection.">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="assets/manifest.json">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="#dashboard" class="brand" id="brand-link">
+                <div class="brand-icon">⚡</div>
+                <div class="brand-text">
+                    <h1 data-i18n="appName">Vocabulary Activator</h1>
+                    <p data-i18n="tagline">Turn passive vocabulary into fluent active speech</p>
+                </div>
+            </a>
+
+            <nav class="nav-actions">
+                <button class="nav-btn active" data-view="dashboard" data-i18n="navDashboard">Dashboard</button>
+                <button class="nav-btn" data-view="vocab" data-i18n="navVocab">Vocabulary Bank</button>
+                <button class="nav-btn" data-view="stats" data-i18n="navStats">Statistics</button>
+                <button class="nav-btn" data-view="instructions" data-i18n="navInstructions">Instructions</button>
+
+                <!-- Quick Sound Toggle -->
+                <button class="icon-btn" id="btn-quick-sound" title="Toggle Sound" data-i18n-title="settingSound">
+                    🔊
+                </button>
+
+                <!-- Quick Theme Toggle -->
+                <button class="icon-btn" id="btn-quick-theme" title="Toggle Theme" data-i18n-title="settingTheme">
+                    🌓
+                </button>
+
+                <!-- Settings Modal Trigger -->
+                <button class="icon-btn" id="btn-open-settings" title="Settings" data-i18n-title="navSettings">
+                    ⚙️
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="app-container">
+
+        <!-- Top Guide Callout -->
+        <div class="info-callout" id="info-callout-banner">
+            <div class="info-callout-text">
+                💡 <span data-i18n="tagline">Bridge the gap between passive recognition and active fluency.</span>
+                <span class="info-callout-link" id="link-read-guide" data-i18n="navInstructions">Learn why & how it works →</span>
+            </div>
+        </div>
+
+        <!-- ================= DASHBOARD VIEW ================= -->
+        <section id="view-dashboard" class="view-panel">
+            <div class="hero-card">
+                <div class="hero-header">
+                    <div class="hero-title">
+                        <h2 data-i18n="dailyGoalTitle">Today's Activation Goal</h2>
+                        <p data-i18n="statAntiPileupNotice">🛡️ Anti-Pileup Protection Active: If you miss a day, only 1 batch of up to 10 words is queued.</p>
+                    </div>
+                    <div class="daily-limit-badge" id="daily-adds-badge">
+                        <span data-i18n="wordsAddedToday">Words added today</span>: <strong id="hero-added-count">0</strong>/10
+                    </div>
+                </div>
+
+                <div class="hero-metrics">
+                    <div class="metric-box">
+                        <span class="metric-label" data-i18n="wordsDueToday">Words ready for activation today</span>
+                        <span class="metric-value highlight" id="hero-due-count">0</span>
+                        <span class="metric-sub" data-i18n="maxLimitBadge">Max 10 / day</span>
+                    </div>
+
+                    <div class="metric-box">
+                        <span class="metric-label" data-i18n="passiveCountLabel">Passive Chunks</span>
+                        <span class="metric-value" id="hero-passive-count">0</span>
+                        <span class="metric-sub">Under spaced repetition</span>
+                    </div>
+
+                    <div class="metric-box">
+                        <span class="metric-label" data-i18n="activeCountLabel">Fully Activated</span>
+                        <span class="metric-value" id="hero-active-count" style="color: var(--success);">0</span>
+                        <span class="metric-sub">Graduated via 2x Level 5</span>
+                    </div>
+
+                    <div class="metric-box">
+                        <span class="metric-label" data-i18n="daysPracticedLabel">Days Practiced</span>
+                        <span class="metric-value" id="hero-streak-count">0</span>
+                        <span class="metric-sub">Consistency creates fluency</span>
+                    </div>
+                </div>
+
+                <div class="hero-actions">
+                    <button class="btn btn-primary" id="btn-activate-main">
+                        ⚡ <span data-i18n="btnActivateVocab">Activate Vocabulary</span>
+                    </button>
+                    <button class="btn btn-secondary" id="btn-open-add-modal">
+                        <span data-i18n="btnAddChunk">+ Add Phrase or Word</span>
+                    </button>
+                    <button class="btn btn-secondary" id="btn-practice-early" style="display: none;">
+                        🔄 <span data-i18n="btnEarlyPractice">Practice Ahead (Early Review)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Dynamic State Containers -->
+            <div id="dash-caught-up-box" class="dash-card" style="display: none; text-align: center; padding: 40px 20px;">
+                <div style="font-size: 3rem; margin-bottom: 12px;">🌟</div>
+                <h3 data-i18n="allCaughtUpTitle" style="font-size: 1.4rem; margin-bottom: 8px;">All Caught Up For Today!</h3>
+                <p data-i18n="allCaughtUpDesc" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 20px auto;">
+                    You have reviewed all due words. Words you save appear for review every 2 to 3 days. No pileups, no pressure!
+                </p>
+                <button class="btn btn-secondary" id="btn-caught-up-early">
+                    🔄 <span data-i18n="btnEarlyPractice">Practice Ahead (Early Review)</span>
+                </button>
+            </div>
+
+            <div id="dash-empty-box" class="dash-card" style="display: none; text-align: center; padding: 40px 20px;">
+                <div style="font-size: 3rem; margin-bottom: 12px;">📚</div>
+                <h3 data-i18n="noWordsYetTitle" style="font-size: 1.4rem; margin-bottom: 8px;">Your Vocabulary Bank is Empty</h3>
+                <p data-i18n="noWordsYetDesc" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 20px auto;">
+                    Add up to 10 phrases, idioms, collocations, or words in Russian/English to start activating them.
+                </p>
+                <button class="btn btn-primary" id="btn-empty-add">
+                    <span data-i18n="btnAddChunk">+ Add Phrase or Word</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= REVIEW SESSION VIEW ================= -->
+        <section id="view-review" class="review-view">
+            <div class="review-container">
+                <div class="review-progress-bar">
+                    <div class="review-progress-fill" id="review-progress-fill"></div>
+                </div>
+
+                <div class="review-header-info">
+                    <span id="review-card-counter" data-i18n="cardCounter">Card 1 of 10</span>
+                    <button class="btn btn-secondary" id="btn-exit-review" style="padding: 4px 12px; font-size: 0.8rem;">
+                        ✕ <span data-i18n="close">Close</span>
+                    </button>
+                </div>
+
+                <!-- Flashcard -->
+                <div class="flashcard">
+                    <div class="card-stage-pill" id="card-stage-pill">
+                        Achieved Level 5: 0/2 times
+                    </div>
+
+                    <div class="card-target-phrase">
+                        <span id="card-phrase-text">Phrase Text</span>
+                        <button class="audio-btn" id="btn-pronounce" title="Pronounce Word">🔊</button>
+                    </div>
+
+                    <!-- Context in Action Box (2-3 sentences) -->
+                    <div class="context-box">
+                        <div class="context-box-title">
+                            📖 <span data-i18n="contextHeading">Context in Action</span>
+                        </div>
+                        <div class="context-text" id="card-context-text">
+                            Loading rich contextual sentences...
+                        </div>
+                    </div>
+
+                    <!-- Expandable Definition -->
+                    <div class="definition-box">
+                        <button class="btn-toggle-def" id="btn-toggle-def">
+                            👁️ <span id="def-toggle-text" data-i18n="definitionReveal">Show Definition & Notes</span>
+                        </button>
+                        <div class="definition-content" id="card-definition-content">
+                            <!-- Custom definition inserted dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- 1-5 Rating Scale Buttons -->
+                    <div class="rating-section">
+                        <div class="rating-prompt" data-i18n="ratingInstruction">
+                            Choose your level of recall for this chunk:
+                        </div>
+
+                        <div class="rating-grid">
+                            <button class="btn-rate rate-btn-1" data-rating="1" title="1 - Do Not Recognize">
+                                <span class="rate-num">1</span>
+                                <span class="rate-title" data-i18n="rate1Title">1 - Do Not Recognize</span>
+                            </button>
+
+                            <button class="btn-rate rate-btn-2" data-rating="2" title="2 - Recognize a Bit">
+                                <span class="rate-num">2</span>
+                                <span class="rate-title" data-i18n="rate2Title">2 - Recognize a Bit</span>
+                            </button>
+
+                            <button class="btn-rate rate-btn-3" data-rating="3" title="3 - Know Meaning, Can't Use">
+                                <span class="rate-num">3</span>
+                                <span class="rate-title" data-i18n="rate3Title">3 - Know Meaning</span>
+                            </button>
+
+                            <button class="btn-rate rate-btn-4" data-rating="4" title="4 - Can Use, Want Practice">
+                                <span class="rate-num">4</span>
+                                <span class="rate-title" data-i18n="rate4Title">4 - Can Use, Practice</span>
+                            </button>
+
+                            <button class="btn-rate rate-btn-5" data-rating="5" title="5 - Fully Activated!">
+                                <span class="rate-num">5</span>
+                                <span class="rate-title" data-i18n="rate5Title">5 - Fully Activated!</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VOCABULARY BANK VIEW ================= -->
+        <section id="view-vocab" class="view-panel" style="display: none;">
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h3 data-i18n="vocabBankTitle">Your Vocabulary Bank</h3>
+                    <button class="btn btn-primary" id="btn-vocab-add-more">
+                        <span data-i18n="btnAddChunk">+ Add Phrase or Word</span>
+                    </button>
+                </div>
+
+                <div class="vocab-table-header">
+                    <div class="filter-pills">
+                        <button class="filter-pill active" data-filter="all" id="pill-filter-all">All (0)</button>
+                        <button class="filter-pill" data-filter="passive" id="pill-filter-passive">Passive (0)</button>
+                        <button class="filter-pill" data-filter="active" id="pill-filter-active">Active (0)</button>
+                    </div>
+
+                    <input type="text" class="form-input" id="search-vocab" style="max-width: 280px;" placeholder="Search words or definitions..." data-i18n-placeholder="searchPlaceholder">
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="vocab-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="tableColPhrase">Language Chunk</th>
+                                <th data-i18n="tableColDefinition">Definition / Note</th>
+                                <th data-i18n="tableColStatus">Status</th>
+                                <th data-i18n="tableColStage">Stage (5s: 0/2)</th>
+                                <th data-i18n="tableColNextDue">Next Activation</th>
+                                <th data-i18n="tableColActions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vocab-table-body">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= STATISTICS VIEW ================= -->
+        <section id="view-stats" class="view-panel" style="display: none;">
+            <div class="dash-card">
+                <div class="stats-tabs">
+                    <button class="stats-tab-btn active" data-subtab="daily" data-i18n="statsDailyTab">Daily Statistics</button>
+                    <button class="stats-tab-btn" data-subtab="overall" data-i18n="statsOverallTab">Overall Statistics</button>
+                </div>
+
+                <!-- Daily Statistics Subtab -->
+                <div id="subtab-daily-content">
+                    <div class="hero-metrics" style="margin-bottom: 24px;">
+                        <div class="metric-box">
+                            <span class="metric-label" data-i18n="statDueToday">Words Due Today</span>
+                            <span class="metric-value highlight" id="stats-daily-due">0</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-label" data-i18n="statCompletedToday">Reviewed Today</span>
+                            <span class="metric-value" id="stats-daily-completed" style="color: var(--accent);">0</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-label" data-i18n="statAddedToday">Added Today</span>
+                            <span class="metric-value" id="stats-daily-added">0/10</span>
+                        </div>
+                    </div>
+
+                    <h4 data-i18n="statDailyBreakdown" style="margin-bottom: 14px; font-weight: 700;">Today's Review Results</h4>
+                    <div class="hero-metrics">
+                        <div class="metric-box" style="border-left: 4px solid var(--rate-5);">
+                            <span class="metric-label" data-i18n="statFullyActivated">Fully Activated (5)</span>
+                            <span class="metric-value" id="stats-daily-5">0</span>
+                        </div>
+                        <div class="metric-box" style="border-left: 4px solid var(--rate-3);">
+                            <span class="metric-label" data-i18n="statMediumActivated">Strengthened (2-4)</span>
+                            <span class="metric-value" id="stats-daily-medium">0</span>
+                        </div>
+                        <div class="metric-box" style="border-left: 4px solid var(--rate-1);">
+                            <span class="metric-label" data-i18n="statNotRecognized">Need Attention (1)</span>
+                            <span class="metric-value" id="stats-daily-1">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overall Statistics Subtab -->
+                <div id="subtab-overall-content" style="display: none;">
+                    <div class="stat-ring-container">
+                        <div class="stat-ring" id="stat-overall-ring" style="--percent: 0;">
+                            <div class="stat-ring-inner">
+                                <div class="stat-ring-num" id="stat-mastery-percent">0%</div>
+                                <div class="stat-ring-label" data-i18n="statActiveRatio">Mastery Rate</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-metrics">
+                        <div class="metric-box">
+                            <span class="metric-label" data-i18n="statTotalAll">Total Words in Bank</span>
+                            <span class="metric-value" id="stats-total-all">0</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-label" data-i18n="statTotalPassive">Total Passive Chunks</span>
+                            <span class="metric-value" id="stats-total-passive">0</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-label" data-i18n="statTotalActive">Total Active Chunks</span>
+                            <span class="metric-value" id="stats-total-active" style="color: var(--success);">0</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-label" data-i18n="statPracticeDays">Total Practice Days</span>
+                            <span class="metric-value" id="stats-total-days">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="anti-pileup-banner">
+                    <span data-i18n="statAntiPileupNotice">🛡️ Anti-Pileup Protection Active: If you miss a day, only 1 batch of up to 10 words is queued. You will never face a pileup chore!</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= INSTRUCTIONS VIEW ================= -->
+        <section id="view-instructions" class="view-panel" style="display: none;">
+            <div class="instructions-card">
+                <div class="instruction-section">
+                    <h3 data-i18n="instructionIntroTitle">🧠 The Science of Passive vs. Active Vocabulary</h3>
+                    <p data-i18n="instructionIntroBody">
+                        Most language learners face the same frustrating barrier: they understand movies, books, and podcasts easily (passive vocabulary), but when it's time to speak or write, the words simply do not come (active vocabulary).
+
+                        Vocabulary Activator was engineered specifically to solve this problem through contextual retrieval and spaced activation.
+                    </p>
+                </div>
+
+                <div class="instruction-section">
+                    <h3 data-i18n="instructionLimitTitle">🎯 Why the Strict 10-Word Daily Limit?</h3>
+                    <p data-i18n="instructionLimitBody">
+                        Psycholinguistic research shows that the human working memory can only deeply assimilate 5 to 10 new language chunks per day.
+
+                        Adding 40 or 50 words creates cognitive overload and shallow familiarity without genuine activation. At 10 words a day, you activate up to 300 rich phrases a month—enough to completely transform your spoken fluency without burning out.
+                    </p>
+                </div>
+
+                <div class="instruction-section">
+                    <h3 data-i18n="instructionSpacingTitle">⏳ The 2 to 3 Day Spaced Activation Cycle</h3>
+                    <p data-i18n="instructionSpacingBody">
+                        Words you save do not appear immediately. They appear 2 to 3 days later, right when your brain begins to let go of the memory trace. Retrieving the phrase at this critical threshold strengthens the neural pathways necessary for spontaneous speech.
+                    </p>
+                </div>
+
+                <div class="instruction-section">
+                    <h3 data-i18n="instructionAntiPileupTitle">🛡️ The Anti-Anki Pileup Guarantee</h3>
+                    <p data-i18n="instructionAntiPileupBody">
+                        In conventional apps, missing a few days results in an overwhelming mountain of 50 to 100 cards, creating anxiety and guilt. In Vocabulary Activator, sessions are strictly capped at 10 items. If you missed Monday, you will only see Monday's 10 words when you return. No guilt, no chores—just steady, calm progress.
+                    </p>
+                </div>
+
+                <div class="instruction-section">
+                    <h3 data-i18n="instructionScaleTitle">🔢 The 1 to 5 Activation Scale Explained</h3>
+                    <div class="rating-scale-explainer">
+                        <div class="scale-row">
+                            <div class="scale-badge" style="background: var(--rate-1);">1</div>
+                            <div data-i18n="instructionScale1"><strong>1 - Do Not Recognize:</strong> You have no recollection of this phrase. It will cycle back soon with fresh context.</div>
+                        </div>
+                        <div class="scale-row">
+                            <div class="scale-badge" style="background: var(--rate-2);">2</div>
+                            <div data-i18n="instructionScale2"><strong>2 - Recognize a Bit:</strong> The word looks vaguely familiar, but you cannot deduce its meaning without the definition.</div>
+                        </div>
+                        <div class="scale-row">
+                            <div class="scale-badge" style="background: var(--rate-3); color: #713f12;">3</div>
+                            <div data-i18n="instructionScale3"><strong>3 - Know Meaning, Cannot Use:</strong> You understand it passively when reading, but cannot formulate your own sentence using it spontaneously.</div>
+                        </div>
+                        <div class="scale-row">
+                            <div class="scale-badge" style="background: var(--rate-4);">4</div>
+                            <div data-i18n="instructionScale4"><strong>4 - Can Use, Want Extra Practice:</strong> You feel you can use it, but want one more round of practice to feel 100% confident.</div>
+                        </div>
+                        <div class="scale-row">
+                            <div class="scale-badge" style="background: var(--rate-5);">5</div>
+                            <div data-i18n="instructionScale5"><strong>5 - Fully Activated:</strong> The chunk has become second nature. You can produce it immediately without hesitating.</div>
+                        </div>
+                    </div>
+                    <p data-i18n="instructionGraduationRule" style="margin-top: 14px; font-weight: 600; color: var(--primary);">
+                        <strong>The 2x Graduation Rule:</strong> When you rate a word '5' twice across distinct sessions, it is permanently promoted to your Active Vocabulary and retires from review sessions.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Add Language Chunk Modal -->
+    <div class="modal-overlay" id="modal-add-phrase">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <h3 data-i18n="modalAddTitle">Add Language Chunk</h3>
+                    <p data-i18n="modalAddSubtitle">Add idioms, collocations, phrases or words with your custom definition</p>
+                </div>
+                <button class="modal-close" id="btn-close-add-modal">&times;</button>
+            </div>
+
+            <form id="form-add-phrase">
+                <div class="modal-body">
+                    <div class="badge-limit-warning" id="modal-daily-limit-badge">
+                        💡 <span data-i18n="dailyLimitNotice">Daily Limit: You can save up to 10 items per day.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="input-phrase" data-i18n="labelPhrase">Word, Phrase, or Idiom</label>
+                        <input type="text" class="form-input" id="input-phrase" required placeholder="e.g., come in handy / cut corners / с глазу на глаз" data-i18n-placeholder="placeholderPhrase">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="input-definition" data-i18n="labelDefinition">Definition & Personal Memory Hook</label>
+                        <textarea class="form-textarea" id="input-definition" required placeholder="Write the meaning in your own words (in Russian or your native language) to anchor it..." data-i18n-placeholder="placeholderDefinition"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="select-category" data-i18n="labelCategory">Type (Optional)</label>
+                        <select class="form-select" id="select-category">
+                            <option value="collocation" data-i18n="typeCollocation">Collocation / Chunk</option>
+                            <option value="idiom" data-i18n="typeIdiom">Idiom</option>
+                            <option value="phrasal" data-i18n="typePhrasal">Phrasal Verb</option>
+                            <option value="word" data-i18n="typeWord">Single Word</option>
+                            <option value="grammar" data-i18n="typeGrammar">Sentence Pattern</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-add-modal" data-i18n="btnCancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit-phrase" data-i18n="btnSaveChunk">Save to Passive Vocabulary</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Celebration Modal -->
+    <div class="modal-overlay" id="modal-congrats">
+        <div class="modal-dialog" style="max-width: 480px;">
+            <div class="congrats-modal-body">
+                <div class="congrats-icon">🎉</div>
+                <h3 class="congrats-title" data-i18n="congratsTitle">Session Completed! 🎉</h3>
+                <p data-i18n="congratsSubtitle" style="color: var(--text-secondary);">Great job! You have completed today's activation batch.</p>
+
+                <div class="congrats-stats">
+                    <div class="congrats-stat-box">
+                        <div class="congrats-stat-num" id="congrats-reviewed-num">0</div>
+                        <div class="congrats-stat-lbl" data-i18n="congratsReviewedCount">Words Reviewed</div>
+                    </div>
+                    <div class="congrats-stat-box">
+                        <div class="congrats-stat-num" id="congrats-promoted-num" style="color: var(--success);">0</div>
+                        <div class="congrats-stat-lbl" data-i18n="congratsPromotedCount">Graduated to Active</div>
+                    </div>
+                    <div class="congrats-stat-box">
+                        <div class="congrats-stat-num" id="congrats-streak-num" style="color: var(--accent);">0</div>
+                        <div class="congrats-stat-lbl" data-i18n="congratsStreak">Days Practiced</div>
+                    </div>
+                </div>
+
+                <p data-i18n="congratsMotivational" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px;">
+                    Consistent daily activation builds effortless active fluency. See you in the next session!
+                </p>
+
+                <button class="btn btn-primary" id="btn-close-congrats" style="width: 100%;" data-i18n="btnCloseCongrats">
+                    Continue to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="modal-settings">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <h3 data-i18n="settingsTitle">Settings & Preferences</h3>
+                </div>
+                <button class="modal-close" id="btn-close-settings">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Language Selector -->
+                <div class="form-group">
+                    <label class="form-label" data-i18n="settingLanguage">Interface Language</label>
+                    <select class="form-select" id="setting-language-select">
+                        <option value="en">English (English)</option>
+                        <option value="ru">Русский (Russian)</option>
+                        <option value="uz">O'zbekcha (Uzbek)</option>
+                    </select>
+                </div>
+
+                <!-- Theme Selector -->
+                <div class="form-group">
+                    <label class="form-label" data-i18n="settingTheme">Color Theme</label>
+                    <select class="form-select" id="setting-theme-select">
+                        <option value="light" data-i18n="themeLight">Light Theme</option>
+                        <option value="dark" data-i18n="themeDark">Dark Theme</option>
+                    </select>
+                </div>
+
+                <!-- Sound Effects Toggle -->
+                <div class="form-group">
+                    <label class="form-label" data-i18n="settingSound">Sound Effects</label>
+                    <select class="form-select" id="setting-sound-select">
+                        <option value="true" data-i18n="soundOn">Enabled (Clicks & Celebrations)</option>
+                        <option value="false" data-i18n="soundOff">Muted</option>
+                    </select>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+                <!-- Context Generator Engine (ChatGPT / OpenAI) -->
+                <div class="form-group">
+                    <label class="form-label" data-i18n="settingAiTitle">Context Sentences Engine</label>
+                    <p class="form-hint" data-i18n="settingAiDesc" style="margin-bottom: 12px;">
+                        Context sentences provide natural 2-3 sentence stories for each word. You can use the built-in offline smart generator, or connect an OpenAI API key for live context creation.
+                    </p>
+
+                    <label class="form-label" for="input-openai-key" style="font-size: 0.82rem;" data-i18n="labelApiKey">OpenAI API Key (Optional)</label>
+                    <input type="password" class="form-input" id="input-openai-key" placeholder="sk-..." data-i18n-placeholder="placeholderApiKey">
+                    <p class="form-hint" data-i18n="apiKeyHint">Stored only in your browser's private localStorage. Never sent to any external server except OpenAI.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="select-openai-model" style="font-size: 0.82rem;" data-i18n="labelAiModel">AI Model</label>
+                    <select class="form-select" id="select-openai-model">
+                        <option value="gpt-4o-mini">gpt-4o-mini (Fast & Recommended)</option>
+                        <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+                        <option value="gpt-4o">gpt-4o</option>
+                    </select>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+                <!-- Reset Data -->
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary" id="btn-reset-data" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.4);" data-i18n="btnResetData">
+                        Reset All Learning Data
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn-save-settings" data-i18n="btnSaveSettings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/ai-context.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/confetti.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
